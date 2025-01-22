@@ -96,7 +96,7 @@ class LLMConfig(UniversalBaseClass):
 @dataclass
 class AssistantLLM(UniversalBaseClass):
     prompt_opt: str
-
+    evaluate: str
 
 @dataclass
 class Dir(UniversalBaseClass):

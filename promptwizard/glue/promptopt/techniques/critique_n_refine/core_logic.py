@@ -69,7 +69,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
         self.iolog.reset_eval_glue(base_path)
 
     @iolog.log_io_params
-    def chat_completion(self, user_prompt: str, system_prompt: str = None):
+    def chat_completion(self, user_prompt: str, system_prompt: str = None, model: str = None) -> str:
         """
         Make a chat completion request to the OpenAI API.
 
@@ -84,7 +84,10 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ]
-        response = LLMMgr.chat_completion(messages)
+        if model:
+            response = LLMMgr.chat_completion(messages, model)
+        else:
+            response = LLMMgr.chat_completion(messages, self.setup_config.assistant_llm.prompt_opt)
         return response
 
     @iolog.log_io_params
@@ -198,6 +201,8 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                     instruction=instruction,
                     questions='\n'.join(questions_pool))
                 
+                # Currently using prompt_opt model to first optimize the prompt and then evaluate the optimized prompt as a stop condition
+                # TODO: The evaluation here can be done using evaluate model too, which refers to the target model
                 generated_text = self.chat_completion(solve_prompt)
                 critique_example_set = self.evaluate(generated_text, dataset_subset)
                 if not critique_example_set:
