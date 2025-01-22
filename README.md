@@ -1,6 +1,14 @@
 
 # PromptWizard 🧙
 
+> Adds support for non-OpenAI models and configurations for optimization and evaluation models
+
+This fork adds:
+- Support for non-OpenAI models using `litellm` (`aisuite` only supports Vertex for Gemini)
+- Configurations for optimization (`prompt_opt`) and evaluation (`evaluate`) models (`setup_config` for gsm8k shows how this can be done)
+
+---
+
 <p align="left">
   <a href='https://arxiv.org/abs/2405.18369'>
     <img src=https://img.shields.io/badge/arXiv-2409.10566-b31b1b.svg>
