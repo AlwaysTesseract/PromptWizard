@@ -14,50 +14,52 @@ from ..utils.runtime_tasks import str_to_class
 import os
 logger = get_glue_logger(__name__)
 
-def call_api(messages):
+SAFETY_SETTINGS=[
+    {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_NONE",
+    },
+    {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "threshold": "BLOCK_NONE",
+    },
+    {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "threshold": "BLOCK_NONE",
+    },
+    {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "threshold": "BLOCK_NONE",
+    },
+]
 
-    from openai import OpenAI
-    from azure.identity import get_bearer_token_provider, AzureCliCredential
-    from openai import AzureOpenAI
 
-    if os.environ['USE_OPENAI_API_KEY'] == "True":
-        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+def call_api(messages, model):
 
-        response = client.chat.completions.create(
-        model=os.environ["OPENAI_MODEL_NAME"],
-        messages=messages,
-        temperature=0.0,
+    from litellm import completion
+
+    if 'gemini' in model:
+        completion = completion(
+            model=model,
+            messages=messages,
+            temperature=0.0,
+            safety_settings=SAFETY_SETTINGS,
         )
     else:
-        token_provider = get_bearer_token_provider(
-                AzureCliCredential(), "https://cognitiveservices.azure.com/.default"
-            )
-        client = AzureOpenAI(
-            api_version=os.environ["OPENAI_API_VERSION"],
-            azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-            azure_ad_token_provider=token_provider
-            )
-        response = client.chat.completions.create(
-            model=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
+        completion = completion(
+            model=model,
             messages=messages,
             temperature=0.0,
         )
-
-    prediction = response.choices[0].message.content
-    return prediction
+    output = completion.choices[0].message.content
+    return output
 
 
 class LLMMgr:
     @staticmethod
-    def chat_completion(messages: Dict):
-        llm_handle = os.environ.get("MODEL_TYPE", "AzureOpenAI")
+    def chat_completion(messages: Dict, model: str):
         try:
-            if(llm_handle == "AzureOpenAI"): 
-                # Code to for calling LLMs
-                return call_api(messages)
-            elif(llm_handle == "LLamaAML"):
-                # Code to for calling SLMs
-                return 0
+            return call_api(messages, model)
         except Exception as e:
             print(e)
             return "Sorry, I am not able to understand your query. Please try again."
