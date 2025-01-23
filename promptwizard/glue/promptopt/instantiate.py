@@ -129,7 +129,7 @@ class GluePromptOpt:
         """
 
         start_time = time.time()
-        self.logger.info(f"Evaluation started {CommonLogsStr.LOG_SEPERATOR}")
+        self.logger.info(f"Evaluation started for {self.setup_config.assistant_llm.evaluate} {CommonLogsStr.LOG_SEPERATOR}")
         if not self.BEST_PROMPT:
             self.logger.error("BEST_PROMPT attribute is not set. Please set self.BEST_PROMPT attribute of this object, "
                               "either manually or by calling get_best_prompt() method.")

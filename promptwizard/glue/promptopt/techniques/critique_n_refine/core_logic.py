@@ -201,9 +201,10 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                     instruction=instruction,
                     questions='\n'.join(questions_pool))
                 
-                # Currently using prompt_opt model to first optimize the prompt and then evaluate the optimized prompt as a stop condition
-                # TODO: The evaluation here can be done using evaluate model too, which refers to the target model
-                generated_text = self.chat_completion(solve_prompt)
+                if self.params.prompt_score_model == "evaluate":
+                    generated_text = self.chat_completion(solve_prompt, None, model=self.setup_config.assistant_llm.evaluate)
+                else:
+                    generated_text = self.chat_completion(solve_prompt)
                 critique_example_set = self.evaluate(generated_text, dataset_subset)
                 if not critique_example_set:
                     # If all the questions were answered correctly, then we need to get a new set of questions to answer
