@@ -6,6 +6,7 @@
 This fork adds:
 - Support for non-OpenAI models using `litellm` (`aisuite` only supports Vertex for Gemini)
 - Configurations for optimization (`prompt_opt`) and evaluation (`evaluate`) models (`setup_config` for gsm8k shows how this can be done)
+  - This choice can also be made when optimizing prompts using [CritiqueNRefine](https://github.com/microsoft/PromptWizard/blob/f43de896352f5eda9639e60f09a4b386109c5b1c/promptwizard/glue/promptopt/techniques/critique_n_refine/core_logic.py#L171). Specifically, prompt scores should be computed using the optimization model (`prompt_opt`) for optimization and using the evaluation model (`evaluate`) for adaptation.
 
 ---
 
