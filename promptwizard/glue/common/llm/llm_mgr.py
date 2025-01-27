@@ -14,6 +14,8 @@ from ..utils.runtime_tasks import str_to_class
 import os
 logger = get_glue_logger(__name__)
 
+os.environ["LITELLM_LOG"] = "WARNING"
+
 SAFETY_SETTINGS=[
     {
         "category": "HARM_CATEGORY_HARASSMENT",
@@ -39,19 +41,19 @@ def call_api(messages, model):
     from litellm import completion
 
     if 'gemini' in model:
-        completion = completion(
+        response = completion(
             model=model,
             messages=messages,
             temperature=0.0,
             safety_settings=SAFETY_SETTINGS,
         )
     else:
-        completion = completion(
+        response = completion(
             model=model,
             messages=messages,
             temperature=0.0,
         )
-    output = completion.choices[0].message.content
+    output = response.choices[0].message.content
     return output
 
 

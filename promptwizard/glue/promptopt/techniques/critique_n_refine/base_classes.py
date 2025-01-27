@@ -29,8 +29,6 @@ class CritiqueNRefinePromptPool(PromptPool):
 @dataclass
 class CritiqueNRefineParams(PromptOptimizationParams, UniversalBaseClass):
     unique_model_id: str
-    # Model to be used for scoring the prompts between `prompt_opt` and `evaluate`
-    prompt_score_model: str
     # Number of candidate prompts to generate in given iteration
     style_variation: int
     # Number of questions to be asked to LLM in a single go

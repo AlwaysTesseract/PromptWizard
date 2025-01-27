@@ -97,6 +97,8 @@ class LLMConfig(UniversalBaseClass):
 class AssistantLLM(UniversalBaseClass):
     prompt_opt: str
     evaluate: str
+    # Model to be used for scoring the prompts between `prompt_opt` and `evaluate`
+    prompt_score_model: str
 
 @dataclass
 class Dir(UniversalBaseClass):

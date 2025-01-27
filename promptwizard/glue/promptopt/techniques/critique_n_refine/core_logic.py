@@ -201,7 +201,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                     instruction=instruction,
                     questions='\n'.join(questions_pool))
                 
-                if params.prompt_score_model == "evaluate":
+                if self.setup_config.assistant_llm.prompt_score_model == "evaluate":
                     generated_text = self.chat_completion(solve_prompt, None, model=self.setup_config.assistant_llm.evaluate)
                 else:
                     generated_text = self.chat_completion(solve_prompt)

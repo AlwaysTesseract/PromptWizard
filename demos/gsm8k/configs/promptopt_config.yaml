@@ -8,8 +8,6 @@
 prompt_technique_name: "critique_n_refine"
 # unique_model_id of model defined in llm_config.yaml
 unique_model_id: gpt-4o
-# Model to be used for scoring the prompts between `prompt_opt` and `evaluate`
-prompt_score_model: "evaluate"
 # Number of iterations for conducting <mutation_rounds>  rounds of mutation of task description
 # followed by refinement of instructions
 mutate_refine_iterations: 3

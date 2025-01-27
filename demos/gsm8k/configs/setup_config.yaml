@@ -4,6 +4,8 @@ assistant_llm:
   prompt_opt: gpt-4o
   # this model will be used to evaluate the optimized prompt on the test split after the optimization process
   evaluate: gpt-4o
+  # this model will be used for scoring the prompts between `prompt_opt` and `evaluate`
+  prompt_score_model: "evaluate"
 dir_info:
   # Base directory for everything
   base_dir: logs
