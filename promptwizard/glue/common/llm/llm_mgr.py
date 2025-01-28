@@ -40,19 +40,18 @@ def call_api(messages, model):
 
     from litellm import completion
 
+    completion_kwargs = {
+        "model": model,
+        "messages": messages,
+        "temperature": 0.0,
+    }
+
     if 'gemini' in model:
-        response = completion(
-            model=model,
-            messages=messages,
-            temperature=0.0,
-            safety_settings=SAFETY_SETTINGS,
-        )
-    else:
-        response = completion(
-            model=model,
-            messages=messages,
-            temperature=0.0,
-        )
+        completion_kwargs["safety_settings"] = SAFETY_SETTINGS
+    if "OVERRIDE_API_KEY" in os.environ:
+        completion_kwargs["api_key"] = os.environ["OVERRIDE_API_KEY"]
+
+    response = completion(**completion_kwargs)
     output = response.choices[0].message.content
     return output
 
@@ -67,7 +66,7 @@ class LLMMgr:
             return "Sorry, I am not able to understand your query. Please try again."
             # raise GlueLLMException(f"Exception when calling {llm_handle.__class__.__name__} "
             #                        f"LLM in chat mode, with message {messages} ", e)
-        
+
 
     @staticmethod
     def get_all_model_ids_of_type(llm_config: LLMConfig, llm_output_type: str):
@@ -115,7 +114,7 @@ class LLMMgr:
             for azure_oai_model in az_llm_config.azure_oai_models:
                 callback_mgr = None
                 if azure_oai_model.track_tokens:
-                    
+
                     # If we need to count number of tokens used in LLM calls
                     token_counter = TokenCountingHandler(
                         tokenizer=tiktoken.encoding_for_model(azure_oai_model.model_name_in_azure).encode
