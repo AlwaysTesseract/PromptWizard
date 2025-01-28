@@ -2,6 +2,7 @@ assistant_llm:
   # put the unique_model_id that you specified in llm_config.yaml
   origin_model: gpt-4o
   target_model: gpt-4o
+  optimization_model: gpt-4o
   judge_model: gpt-4o
 dir_info:
   # Base directory for everything

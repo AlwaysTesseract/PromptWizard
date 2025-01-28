@@ -84,11 +84,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ]
-        if model:
-            response = LLMMgr.chat_completion(messages, model)
-        else:
-            # most calls - optimization, mutation, critique, prompt evaluation - use/require the target model
-            response = LLMMgr.chat_completion(messages, self.setup_config.assistant_llm.target_model)
+        response = LLMMgr.chat_completion(messages, model)
         return response
 
     @iolog.log_io_params
@@ -113,7 +109,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                 meta_prompts="\n".join(self.prompt_pool.thinking_styles[:thinking_styles_count]),
                 num_variations=thinking_styles_count,
                 prompt_instruction=base_instruction)
-            generated_mutated_prompt = self.chat_completion(mutated_sample_prompt)
+            generated_mutated_prompt = self.chat_completion(mutated_sample_prompt, model=self.setup_config.assistant_llm.optimization_model)
             # Find all matches of the pattern in the text
             matches = re.findall(DatasetSpecificProcessing.TEXT_DELIMITER_PATTERN_MUTATION, generated_mutated_prompt)
             candidate_prompts.extend(matches)
@@ -149,13 +145,13 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
 
         meta_critique_prompt = meta_critique_prompt.format(instruction=prompt, examples=example_string)
 
-        critique_text = self.chat_completion(meta_critique_prompt, self.prompt_pool.expert_profile)
+        critique_text = self.chat_completion(meta_critique_prompt, self.prompt_pool.expert_profile, model=self.setup_config.assistant_llm.optimization_model)
         critique_refine_prompt = self.prompt_pool.critique_refine_template.format(instruction=prompt,
                                                                                   examples=example_string,
                                                                                   critique=critique_text,
                                                                                   steps_per_sample=1)
 
-        refined_prompts = self.chat_completion(critique_refine_prompt, self.prompt_pool.expert_profile)
+        refined_prompts = self.chat_completion(critique_refine_prompt, self.prompt_pool.expert_profile, model=self.setup_config.assistant_llm.optimization_model)
         
         refined_prompts = re.findall(DatasetSpecificProcessing.TEXT_DELIMITER_PATTERN, refined_prompts)
         
@@ -202,7 +198,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                     instruction=instruction,
                     questions='\n'.join(questions_pool))
                 
-                generated_text = self.chat_completion(solve_prompt)
+                generated_text = self.chat_completion(solve_prompt, model=self.setup_config.assistant_llm.target_model)
                 critique_example_set = self.evaluate(generated_text, dataset_subset)
                 if not critique_example_set:
                     # If all the questions were answered correctly, then we need to get a new set of questions to answer
@@ -346,7 +342,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                                                                            instruction=instruction,
                                                                            question=question,
                                                                            answer=answer)
-        return self.chat_completion(user_prompt=prompt_template)
+        return self.chat_completion(user_prompt=prompt_template, model=self.setup_config.assistant_llm.optimization_model)
 
     @iolog.log_io_params
     def generate_expert_identity(self, task_description: str) -> str:
@@ -358,7 +354,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
         expert profile.
         """
         expert_prompt = self.prompt_pool.expert_template.format(task_description=task_description)
-        return self.chat_completion(expert_prompt)
+        return self.chat_completion(expert_prompt, model=self.setup_config.assistant_llm.optimization_model)
 
     @iolog.log_io_params
     def generate_intent_keywords(self, task_description: str, instruction: str):
@@ -369,7 +365,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
         :param instruction: Instruction given to LLM for solving the given task
         """
         prompt_template = self.prompt_pool.intent_template.format(task_description=task_description, instruction=instruction)
-        return self.chat_completion(user_prompt=prompt_template)
+        return self.chat_completion(user_prompt=prompt_template, model=self.setup_config.assistant_llm.optimization_model)
 
     @iolog.append_to_chained_log
     def generate_best_examples(self, examples: List, params: PromptOptimizationParams) -> List:
@@ -387,7 +383,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                    task_description=params.task_description,
                    num_examples=params.few_shot_count)
         
-        critique = self.chat_completion(few_shot_critique_prompt, self.prompt_pool.expert_profile)
+        critique = self.chat_completion(few_shot_critique_prompt, self.prompt_pool.expert_profile, model=self.setup_config.assistant_llm.optimization_model)
 
         gt_eg = random.sample(self.dataset, 1)
         gt_eg_string = self.data_processor.collate_to_str(gt_eg, self.prompt_pool.quest_reason_ans)
@@ -398,7 +394,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                    critique=critique,
                    task_description=params.task_description,
                    num_examples=params.few_shot_count)
-        synthetic_examples = self.chat_completion(few_shot_opt_prompt, self.prompt_pool.expert_profile)
+        synthetic_examples = self.chat_completion(few_shot_opt_prompt, self.prompt_pool.expert_profile, model=self.setup_config.assistant_llm.optimization_model)
         synthetic_examples = self.extract_examples_frm_response(synthetic_examples)
 
         return synthetic_examples
@@ -415,7 +411,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                    task_description=params.task_description,
                    num_examples=params.num_train_examples)
         
-        critique = self.chat_completion(few_shot_critique_prompt, self.prompt_pool.expert_profile)
+        critique = self.chat_completion(few_shot_critique_prompt, self.prompt_pool.expert_profile, model=self.setup_config.assistant_llm.optimization_model)
 
         few_shot_opt_prompt = self.prompt_pool.examples_optimization_template.\
             format(prompt=params.base_instruction,
@@ -424,7 +420,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                    critique=critique,
                    task_description=params.task_description,
                    num_examples=params.num_train_examples)
-        synthetic_examples = self.chat_completion(few_shot_opt_prompt, self.prompt_pool.expert_profile)
+        synthetic_examples = self.chat_completion(few_shot_opt_prompt, self.prompt_pool.expert_profile, model=self.setup_config.assistant_llm.optimization_model)
         synthetic_examples = self.extract_examples_frm_response(synthetic_examples)
         return synthetic_examples
 
@@ -446,12 +442,12 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
             
         meta_critique_prompt = self.prompt_pool.meta_critique_template.format(instruction=params.base_instruction,
                                                                               examples=example_string)
-        critique_text = self.chat_completion(meta_critique_prompt, self.prompt_pool.expert_profile)
+        critique_text = self.chat_completion(meta_critique_prompt, self.prompt_pool.expert_profile, model=self.setup_config.assistant_llm.optimization_model)
         critique_refine_prompt = self.prompt_pool.critique_refine_template.format(instruction=params.base_instruction,
                                                                                   examples=example_string,
                                                                                   critique=critique_text,
                                                                                   steps_per_sample=1)
-        refined_prompts = self.chat_completion(critique_refine_prompt)
+        refined_prompts = self.chat_completion(critique_refine_prompt, model=self.setup_config.assistant_llm.optimization_model)
 
         if self.data_processor != None:
             refined_instructions = re.findall(self.data_processor.TEXT_DELIMITER_PATTERN, refined_prompts)
@@ -527,7 +523,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                     instruction=params.base_instruction,
                     answer_format=params.answer_format,
                     questions=example[DatasetSpecificProcessing.QUESTION_LITERAL])
-                generated_text = self.chat_completion(solve_prompt)
+                generated_text = self.chat_completion(solve_prompt, model=self.setup_config.assistant_llm.optimization_model)
 
                 examples.extend(self.evaluate(generated_text, [example]))
                 if len(examples) >= params.few_shot_count:

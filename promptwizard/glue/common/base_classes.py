@@ -97,6 +97,7 @@ class LLMConfig(UniversalBaseClass):
 class AssistantLLM(UniversalBaseClass):
     origin_model: str
     target_model: str
+    optimization_model: str
     judge_model: str = "gpt-4o-2024-11-20"
 
 @dataclass

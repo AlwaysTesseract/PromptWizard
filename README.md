@@ -5,7 +5,12 @@
 
 This fork adds:
 - Support for non-OpenAI models using `litellm` (`aisuite` only supports Vertex for Gemini)
-- Configurations for origin model (`origin_model`), target model (`target_model`) and LLMaaJ model (`judge_model`) (`setup_config` for gsm8k shows how this can be done)
+- Configurations for:
+  - Origin model (`origin_model`)
+  - Target model (`target_model`)
+  - Optimization model (`optimization_model`)
+  - LLMaaJ model (`judge_model`) 
+`setup_config` for [gsm8k](nd-prompt-opt/PromptWizard/demos/gsm8k/configs/setup_config.yaml) demonstrates this.
 
 ---
 
@@ -270,4 +275,3 @@ If you make use of our work, please cite our paper:
 ```
 ## Responsible AI Considerations 
 For guidelines and best practices related to Responsible AI, please refer to our [Responsible AI Guidelines](RESPONSIBLE_AI.md).
-
