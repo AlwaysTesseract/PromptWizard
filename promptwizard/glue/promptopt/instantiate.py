@@ -129,7 +129,7 @@ class GluePromptOpt:
         """
 
         start_time = time.time()
-        self.logger.info(f"Evaluation started for {self.setup_config.assistant_llm.evaluate} {CommonLogsStr.LOG_SEPERATOR}")
+        self.logger.info(f"Evaluation started for {self.setup_config.assistant_llm.target_model} {CommonLogsStr.LOG_SEPERATOR}")
         if not self.BEST_PROMPT:
             self.logger.error("BEST_PROMPT attribute is not set. Please set self.BEST_PROMPT attribute of this object, "
                               "either manually or by calling get_best_prompt() method.")
@@ -169,7 +169,7 @@ class GluePromptOpt:
         """
         final_prompt = self.prompt_pool.eval_prompt.format(instruction=self.BEST_PROMPT,
                                                            question=question)
-        llm_output = self.prompt_opt.chat_completion(user_prompt=final_prompt, system_prompt=self.EXPERT_PROFILE, model=self.setup_config.assistant_llm.evaluate)
+        llm_output = self.prompt_opt.chat_completion(user_prompt=final_prompt, system_prompt=self.EXPERT_PROFILE, model=self.setup_config.assistant_llm.target_model)
         
         is_correct, predicted_ans = self.data_processor.access_answer(llm_output, gt_answer)
         return {self.EvalLiterals.IS_CORRECT: is_correct,

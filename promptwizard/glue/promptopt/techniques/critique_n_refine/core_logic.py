@@ -87,7 +87,8 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
         if model:
             response = LLMMgr.chat_completion(messages, model)
         else:
-            response = LLMMgr.chat_completion(messages, self.setup_config.assistant_llm.prompt_opt)
+            # most calls - optimization, mutation, critique, prompt evaluation - use/require the target model
+            response = LLMMgr.chat_completion(messages, self.setup_config.assistant_llm.target_model)
         return response
 
     @iolog.log_io_params
@@ -201,10 +202,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                     instruction=instruction,
                     questions='\n'.join(questions_pool))
                 
-                if self.setup_config.assistant_llm.prompt_score_model == "evaluate":
-                    generated_text = self.chat_completion(solve_prompt, None, model=self.setup_config.assistant_llm.evaluate)
-                else:
-                    generated_text = self.chat_completion(solve_prompt)
+                generated_text = self.chat_completion(solve_prompt)
                 critique_example_set = self.evaluate(generated_text, dataset_subset)
                 if not critique_example_set:
                     # If all the questions were answered correctly, then we need to get a new set of questions to answer
@@ -271,7 +269,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
             print("dataset_subset", dataset_subset)
             actual_answer = dataset_subset[i][DatasetSpecificProcessing.FINAL_ANSWER_LITERAL]
             question = dataset_subset[i][DatasetSpecificProcessing.QUESTION_LITERAL]
-            is_correct, _ = self.data_processor.access_answer(answer_matches[i], actual_answer)
+            is_correct, _ = self.data_processor.access_answer(answer_matches[i], actual_answer, self.setup_config.assistant_llm.judge_model)
             if not is_correct:
                 wrong_examples.append(dataset_subset[i])
         # 

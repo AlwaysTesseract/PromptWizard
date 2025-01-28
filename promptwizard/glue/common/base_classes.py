@@ -95,10 +95,9 @@ class LLMConfig(UniversalBaseClass):
 
 @dataclass
 class AssistantLLM(UniversalBaseClass):
-    prompt_opt: str
-    evaluate: str
-    # Model to be used for scoring the prompts between `prompt_opt` and `evaluate`
-    prompt_score_model: str
+    origin_model: str
+    target_model: str
+    judge_model: str = "gpt-4o-2024-11-20"
 
 @dataclass
 class Dir(UniversalBaseClass):
