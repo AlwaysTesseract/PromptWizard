@@ -138,14 +138,16 @@ class GluePromptOpt:
         total_correct = 0
         total_count = 0
         for json_obj in read_jsonl_row(test_dataset_jsonl):
-            answer = self.predict_and_access(json_obj[DatasetSpecificProcessing.QUESTION_LITERAL],
-                                             json_obj[DatasetSpecificProcessing.FINAL_ANSWER_LITERAL])
-      
+            question = json_obj[DatasetSpecificProcessing.QUESTION_LITERAL]
+            final_answer = json_obj[DatasetSpecificProcessing.FINAL_ANSWER_LITERAL]
+            answer = self.predict_and_access(question, final_answer)
+
             total_correct += answer[self.EvalLiterals.IS_CORRECT]
             total_count += 1
             result = {"accuracy": f"{total_correct}/{total_count} : {total_correct/total_count}%",
+                      "question": question,
                       "predicted": answer[self.EvalLiterals.PREDICTED_ANS],
-                      "actual": json_obj[DatasetSpecificProcessing.FINAL_ANSWER_LITERAL]}
+                      "actual": final_answer}
             self.iolog.append_dict_to_chained_logs(result)
             self.logger.info(result)
 
