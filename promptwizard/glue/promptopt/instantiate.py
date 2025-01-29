@@ -170,8 +170,8 @@ class GluePromptOpt:
         final_prompt = self.prompt_pool.eval_prompt.format(instruction=self.BEST_PROMPT,
                                                            question=question)
         llm_output = self.prompt_opt.chat_completion(user_prompt=final_prompt, system_prompt=self.EXPERT_PROFILE, model=self.setup_config.assistant_llm.target_model)
-        
-        is_correct, predicted_ans = self.data_processor.access_answer(llm_output, gt_answer, self.setup_config.assistant_llm.judge_model)
+
+        is_correct, predicted_ans = self.data_processor.access_answer(llm_output, gt_answer, self.setup_config.assistant_llm.judge_model, question=question)
         return {self.EvalLiterals.IS_CORRECT: is_correct,
                 self.EvalLiterals.PREDICTED_ANS: predicted_ans,
                 self.EvalLiterals.LLM_OUTPUT: llm_output}
