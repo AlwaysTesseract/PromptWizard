@@ -265,10 +265,10 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
             print("dataset_subset", dataset_subset)
             actual_answer = dataset_subset[i][DatasetSpecificProcessing.FINAL_ANSWER_LITERAL]
             question = dataset_subset[i][DatasetSpecificProcessing.QUESTION_LITERAL]
-            is_correct, _ = self.data_processor.access_answer(answer_matches[i], actual_answer, self.setup_config.assistant_llm.judge_model)
+            is_correct, _ = self.data_processor.access_answer(answer_matches[i], actual_answer, self.setup_config.assistant_llm.judge_model, question=question)
             if not is_correct:
                 wrong_examples.append(dataset_subset[i])
-        # 
+        #
         return wrong_examples
 
     @iolog.log_io_params
