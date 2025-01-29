@@ -15,9 +15,9 @@ quest_reason_ans: |
   [Question] {question}
   [Answer] {answer}
 
-system_prompt: You are a helpful assistant developed by OpenAI that can efficiently perform tasks as per instruction
+system_prompt: You are a helpful assistant that can efficiently perform tasks as per instruction
 
-expert_profile: You are a helpful assistant developed by OpenAI that can efficiently perform tasks as per instruction
+expert_profile: You are a helpful assistant that can efficiently perform tasks as per instruction
 
 thinking_styles:
   - "How could I devise an experiment to help solve that problem?"
